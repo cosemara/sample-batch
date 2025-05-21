@@ -26,8 +26,7 @@ public class AddPassesJobConfig {
 
 
     @Bean(BEAN_PREFIX+"addPassesStep")
-    public Step addPassesStep(final JobRepository jobRepository, final Tasklet addPassesTasklet, final
-                              PlatformTransactionManager transactionManager) {
+    public Step addPassesStep(final JobRepository jobRepository, final Tasklet addPassesTasklet, final PlatformTransactionManager transactionManager) {
         return new StepBuilder("addPassesStep", jobRepository)
                                       .tasklet(addPassesTasklet, transactionManager)
                                       .build();

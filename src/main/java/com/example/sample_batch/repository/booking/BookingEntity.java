@@ -47,4 +47,10 @@ public class BookingEntity extends BaseEntity {
     private LocalDateTime endedAt;
     private LocalDateTime cancelledAt;
 
+    // endedAt 기준, yyyy-MM-HH 00:00:00
+    public LocalDateTime getStatisticsAt() {
+        return this.endedAt.withHour(0).withMinute(0).withSecond(0).withNano(0);
+
+    }
+
 }
