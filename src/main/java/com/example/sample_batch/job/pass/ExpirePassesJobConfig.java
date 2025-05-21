@@ -17,6 +17,7 @@ import org.springframework.batch.item.database.JpaCursorItemReader;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -25,18 +26,21 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 public class ExpirePassesJobConfig {
 
+    public static final String JOB_NAME = "expirePassesJob";
+    public static final String BEAN_PREFIX = JOB_NAME + "_";
+
     private final int CHUNK_SIZE = 1;
 
     private final EntityManagerFactory entityManagerFactory;
 
-    @Bean
-    public Job expirePassesJob(final JobRepository jobRepository, final Step expirePassesStep) {
+    @Bean(JOB_NAME)
+    public Job expirePassesJob(final JobRepository jobRepository, @Qualifier(BEAN_PREFIX + "expirePassesStep") final Step expirePassesStep) {
         return new JobBuilder("expirePassesJob", jobRepository)
                                      .start(expirePassesStep)
                                      .build();
     }
 
-    @Bean
+    @Bean(BEAN_PREFIX + "expirePassesStep")
     public Step expirePassesStep(final JobRepository jobRepository, final PlatformTransactionManager transactionManager) {
         return new StepBuilder("expirePassesStep", jobRepository)
                                       .<PassEntity, PassEntity>chunk(CHUNK_SIZE, transactionManager)
@@ -58,7 +62,7 @@ public class ExpirePassesJobConfig {
             .name("expirePassesItemReader")
             .entityManagerFactory(entityManagerFactory)
             // 상태(status)가 진행중이며, 종료일시(endedAt)이 현재 시점보다 과거일 경우 만료 대상이 됩니다.
-            .queryString("select p from PassEntity p where p.status = :status and p.endedAt <= :endedAt order by p.passSeq")
+            .queryString("select p from PassEntity p where p.status = :status and p.endedAt <= :endedAt")
             .parameterValues(Map.of("status", PassStatus.PROGRESSED, "endedAt", LocalDateTime.now()))
             .build();
     }
