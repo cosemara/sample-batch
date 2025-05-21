@@ -1,17 +1,23 @@
 spring:
-  config:
-    activate:
-      on-profile: test
+  application:
+    name: pass-batch
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      name: ${job.name:NONE}
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/pt_local?zeroDateTimeBehavior=convertToNull&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: root
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
   jpa:
-    show-sql: true        # ??? ?? ????
+    show-sql: true
     properties:
       hibernate:
-        format_sql: false  # ???? ??
+        format_sql: false
 
 logging:
   level:
